@@ -1,4 +1,3 @@
-import 'react-native-gesture-handler';
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -9,13 +8,14 @@ import DecodeScreen from './src/screens/DecodeScreen';
 const Stack = createStackNavigator();
 
 export default function App() {
-    return (
-        <NavigationContainer>
-            <Stack.Navigator initialRouteName="HomeScreen">
-                <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ title: 'Ana Sayfa' }} />
-                <Stack.Screen name="EncodeScreen" component={EncodeScreen} options={{ title: 'Mesajı Gizle' }} />
-                <Stack.Screen name="DecodeScreen" component={DecodeScreen} options={{ title: 'Mesajı Çıkar' }} />
-            </Stack.Navigator>
-        </NavigationContainer>
-    );
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Encode" component={EncodeScreen} />
+        <Stack.Screen name="Decode" component={DecodeScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
 }
+
