@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, StatusBar } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import Button from '../components/Button';
 import { decodeMessageFromImage } from '../utils/steganografi';
@@ -47,6 +47,7 @@ export default function DecodeScreen() {
 
   return (
     <View style={styles.container}>
+      <StatusBar style="auto"/>
       <Button title="Görsel Seç" onPress={pickImageAsync} />
 
       {/* Görsel Önizlemesi */}

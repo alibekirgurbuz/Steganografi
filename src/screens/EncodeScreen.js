@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert, Image, StatusBar } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import Button from '../components/Button';
-import { encodeMessageInImage } from '../utils/steganografi';
 import * as MediaLibrary from 'expo-media-library';
+import { encodeMessageInImage, decodeMessageFromImage } from '../utils/steganografi';
+import * as FileSystem from 'expo-file-system';
 
 export default function EncodeScreen() {
   const [message, setMessage] = useState('');
@@ -14,8 +15,6 @@ export default function EncodeScreen() {
 
   // Medya izinleri
   const [status, requestPermission] = MediaLibrary.usePermissions();
-  const imageRef = useRef();
-
   if (status === null) {
     requestPermission();
   }
@@ -51,6 +50,11 @@ export default function EncodeScreen() {
         const newEncodedImageUri = await encodeMessageInImage(imageUri, confirmedMessage);
         setEncodedImageUri(newEncodedImageUri);
         setStatusMessage('Mesaj başarılı bir şekilde gizlendi');
+
+        // Mesajı çöz ve logla (isteğe bağlı)
+        const decodedMessage = await decodeMessageFromImage(newEncodedImageUri);
+        console.log('Decoded Message:', decodedMessage);
+
       } catch (err) {
         setStatusMessage(`Hata: ${err.message}`);
       }
@@ -62,24 +66,24 @@ export default function EncodeScreen() {
   const onSaveImageAsync = async () => {
     if (encodedImageUri) {
       try {
-        const { status } = await MediaLibrary.requestPermissionsAsync();
-        if (status !== 'granted') {
-          console.log('Permission to access gallery was denied');
+        const fileInfo = await FileSystem.getInfoAsync(encodedImageUri);
+
+        if (!fileInfo.exists) {
+          setStatusMessage('Görsel kaydedilecek dosya bulunamadı.');
           return;
         }
 
         const asset = await MediaLibrary.createAssetAsync(encodedImageUri);
-        const album = await MediaLibrary.getAlbumAsync('ExpoSteganography');
-        if (album == null) {
-          await MediaLibrary.createAlbumAsync('ExpoSteganography', asset, false);
+        let album = await MediaLibrary.getAlbumAsync('ExpoSteganography');
+        if (!album) {
+          album = await MediaLibrary.createAlbumAsync('ExpoSteganography', asset, false);
         } else {
           await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
         }
-
         setStatusMessage('Görsel galeriye kaydedildi.');
         Alert.alert('Başarılı', 'Görsel galeriye kaydedildi.');
       } catch (error) {
-        console.error('Error saving image to gallery:', error);
+        console.error('Error saving image to gallery:', error.message);
         setStatusMessage('Görsel galeriye kaydedilemedi.');
       }
     } else {
@@ -89,19 +93,22 @@ export default function EncodeScreen() {
 
   return (
     <View style={styles.container}>
+      <Image source={{ uri: imageUri }} style={{ width: 200, height: 200 }} />
       <TextInput
         style={styles.input}
         placeholder="Gizlenecek mesajı girin"
         value={message}
         onChangeText={setMessage}
       />
-      <Button title="Onayla" onPress={handleConfirmMessage} />
-      <Button title="Görsel Seç" onPress={pickImageAsync} />
-      <Button title="Mesajı Gizle" onPress={handleEncode} />
+      <View>
+        <View style={styles.ButtonCont}>
+          <Button title="Görsel Seç" onPress={pickImageAsync} />
+          <Button title="Onayla" onPress={handleConfirmMessage} />
+          <Button title="Mesajı Gizle" onPress={handleEncode} />
+        </View>
+      </View>
       {statusMessage && <Text style={styles.status}>{statusMessage}</Text>}
-      {encodedImageUri && (
-        <Button title="Kaydet" onPress={onSaveImageAsync} />
-      )}
+      {encodedImageUri && (<Button title="Kaydet" onPress={onSaveImageAsync} />)}
     </View>
   );
 }
@@ -123,4 +130,10 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
   },
+  ButtonCont: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '90%',
+  }
 });
