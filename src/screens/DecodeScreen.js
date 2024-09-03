@@ -4,7 +4,14 @@ import * as ImagePicker from 'expo-image-picker';
 import Button from '../components/Button';
 import { decodeMessageFromImage } from '../utils/steganografi';
 
-export default function DecodeScreen() {
+export default function DecodeScreen({navigation}) {
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, [navigation]);
+
+  
   const [imageUri, setImageUri] = useState(null);
   const [decodedMessage, setDecodedMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState(''); // Hata mesajı için state ekledim
@@ -16,17 +23,15 @@ export default function DecodeScreen() {
       allowsEditing: false,
       quality: 1,
     });
-
     if (!result.canceled && result.assets && result.assets.length > 0) {
       setImageUri(result.assets[0].uri);
-      setDecodedMessage(''); // Yeni görsel seçildiğinde önceki mesajı temizle
-      setErrorMessage(''); // Hata mesajını temizle
+      setDecodedMessage(''); // Yeni görsel seçildiğinde önceki mesaj temizlenir.
+      setErrorMessage(''); // Hata mesajı temizlenir
     } else {
-      setErrorMessage('Görsel seçimi iptal edildi veya geçerli bir görsel seçilmedi.');
+      setErrorMessage('Görsel seçilmedi');
     }
   };
-
-  // Mesajı decode etme fonksiyonu
+  // Mesaj decode ediliyor.
   const handleDecode = async () => {
     if (imageUri) {
       try {
@@ -38,10 +43,10 @@ export default function DecodeScreen() {
         }
       } catch (err) {
         setErrorMessage(`Mesaj çözme hatası: ${err.message}. Lütfen geçerli bir dosya seçin.`);
-        setDecodedMessage(''); // Mesaj başarısız olduğunda önceki çözümlenmiş mesajı temizle
+        setDecodedMessage('');
       }
     } else {
-      setErrorMessage('Lütfen bir görsel seçin.');
+      setErrorMessage('Bir görsel seçin.');
     }
   };
 
@@ -50,21 +55,17 @@ export default function DecodeScreen() {
       <StatusBar style="auto"/>
       <Button title="Görsel Seç" onPress={pickImageAsync} />
 
-      {/* Görsel Önizlemesi */}
       {imageUri && (
         <Image source={{ uri: imageUri }} style={styles.imagePreview} />
       )}
 
-      {/* Mesajı Gör Butonu */}
       {imageUri && (
         <Button title="Mesajı Gör" onPress={handleDecode} />
       )}
 
-      {/* Hata Mesajının Gösterimi */}
       {errorMessage ? (
         <Text style={styles.error}>{errorMessage}</Text>
       ) : (
-        /* Şifrelenmiş Mesajın Gösterimi */
         decodedMessage && (
           <Text style={styles.message}>{decodedMessage}</Text>
         )
@@ -79,6 +80,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: "#343a40",
   },
   imagePreview: {
     width: 300,
@@ -90,11 +92,12 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
     textAlign: 'center',
+    color: '#17a2b8',
   },
   error: {
     marginTop: 20,
     fontSize: 16,
     textAlign: 'center',
-    color: 'red', // Hata mesajı için kırmızı renk
+    color: 'red', 
   },
 });

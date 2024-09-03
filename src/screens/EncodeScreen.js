@@ -6,14 +6,20 @@ import * as MediaLibrary from 'expo-media-library';
 import { encodeMessageInImage, decodeMessageFromImage } from '../utils/steganografi';
 import * as FileSystem from 'expo-file-system';
 
-export default function EncodeScreen() {
+
+export default function EncodeScreen({navigation}) {
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, [navigation]);
+
   const [message, setMessage] = useState('');
   const [confirmedMessage, setConfirmedMessage] = useState('');
   const [imageUri, setImageUri] = useState(null);
   const [encodedImageUri, setEncodedImageUri] = useState(null);
   const [statusMessage, setStatusMessage] = useState('');
 
-  // Medya izinleri
   const [status, requestPermission] = MediaLibrary.usePermissions();
   if (status === null) {
     requestPermission();
@@ -51,7 +57,6 @@ export default function EncodeScreen() {
         setEncodedImageUri(newEncodedImageUri);
         setStatusMessage('Mesaj başarılı bir şekilde gizlendi');
 
-        // Mesajı çöz ve logla (isteğe bağlı)
         const decodedMessage = await decodeMessageFromImage(newEncodedImageUri);
         console.log('Decoded Message:', decodedMessage);
 
@@ -59,9 +64,11 @@ export default function EncodeScreen() {
         setStatusMessage(`Hata: ${err.message}`);
       }
     } else {
-      setStatusMessage('Lütfen hem bir mesaj girin hem de bir görsel seçin.');
+      setStatusMessage('Lütfen bir mesaj ve görsel seçin.');
     }
   };
+
+  // !!! Cihaza boş resim kaydediyor !!!
 
   const onSaveImageAsync = async () => {
     if (encodedImageUri) {
@@ -69,10 +76,9 @@ export default function EncodeScreen() {
         const fileInfo = await FileSystem.getInfoAsync(encodedImageUri);
 
         if (!fileInfo.exists) {
-          setStatusMessage('Görsel kaydedilecek dosya bulunamadı.');
+          setStatusMessage(' Dosya bulunamadı.');
           return;
         }
-
         const asset = await MediaLibrary.createAssetAsync(encodedImageUri);
         let album = await MediaLibrary.getAlbumAsync('ExpoSteganography');
         if (!album) {
@@ -97,6 +103,7 @@ export default function EncodeScreen() {
       <TextInput
         style={styles.input}
         placeholder="Gizlenecek mesajı girin"
+        placeholderTextColor="#999"
         value={message}
         onChangeText={setMessage}
       />
@@ -118,22 +125,28 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: "#343a40",
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    margin: 10,
+    borderWidth: 1.5,
+    borderColor: '#ffffff',
+    padding: 12,
+    margin: 12,
     width: '80%',
+    borderRadius:15,
+    marginTop:40,
+    color:'#ffffff'
   },
   status: {
-    marginTop: 20,
-    fontSize: 16,
+    marginTop: 22,
+    fontSize: 22,
+    color: '#fffcf2',
   },
   ButtonCont: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     width: '90%',
+    marginTop:40
   }
 });
