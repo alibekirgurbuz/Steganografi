@@ -11,13 +11,13 @@ export default function Button({ title, onPress }) {
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#e9ecef',
     padding: 15,
     borderRadius: 10,
     margin: 10,
   },
   text: {
-    color: 'white',
+    color: 'black',
     fontSize: 16,
     textAlign: 'center',
   },
