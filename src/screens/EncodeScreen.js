@@ -53,7 +53,12 @@ export default function EncodeScreen({navigation}) {
   const handleEncode = async () => {
     if (imageUri && confirmedMessage) {
       try {
+        // Mesajı encode etmeden önce log ekleyelim
+        console.log('Original Message:', confirmedMessage);
+        console.log('Selected Image URI:', imageUri);
+
         const newEncodedImageUri = await encodeMessageInImage(imageUri, confirmedMessage);
+
         setEncodedImageUri(newEncodedImageUri);
         setStatusMessage('Mesaj başarılı bir şekilde gizlendi');
 
@@ -62,13 +67,12 @@ export default function EncodeScreen({navigation}) {
 
       } catch (err) {
         setStatusMessage(`Hata: ${err.message}`);
+        console.error('Encoding/Decoding Error:', err.message);
       }
     } else {
       setStatusMessage('Lütfen bir mesaj ve görsel seçin.');
     }
   };
-
-  // !!! Cihaza boş resim kaydediyor !!!
 
   const onSaveImageAsync = async () => {
     if (encodedImageUri) {
