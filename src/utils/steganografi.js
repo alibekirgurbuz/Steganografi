@@ -17,8 +17,7 @@ export async function encodeMessageInImage(imageUri, message) {
     const imageBase64 = await FileSystem.readAsStringAsync(imageUri, {
       encoding: FileSystem.EncodingType.Base64,
     });
-    
-    console.log('imageBase64: ', imageBase64); 
+   
     const imageData = Buffer.from(imageBase64, 'base64');
     
     // Mesajı ikili sistemde temsil et ve sonuna null karakteri (00000000) ekle
@@ -48,7 +47,6 @@ export async function encodeMessageInImage(imageUri, message) {
     }
     // Şifrelenmiş görüntüyü tekrar Base64'e çevir
     const encodedBase64 = imageData.toString('base64');
-    console.log('EncodedBase64: ', encodedBase64);
 
     // encodedImageUri'yi önce tanımlıyoruz
     const encodedImageUri = FileSystem.documentDirectory + `encoded_image_${Date.now()}.jpg`;
@@ -60,14 +58,12 @@ export async function encodeMessageInImage(imageUri, message) {
 
     // Görüntü dosyasının doğru kaydedildiğinden emin ol
     const fileInfo = await FileSystem.getInfoAsync(encodedImageUri);
-    console.log('File Info:', fileInfo);
     if (!fileInfo.exists || fileInfo.size === 0) {
       throw new Error('Görsel kaydedilemedi veya boş bir dosya olarak kaydedildi.');
     }
 
     return encodedImageUri;
   } catch (error) {
-    console.error('Encode hatası:', error.message);
     throw new Error(`Mesaj gömme işlemi başarısız oldu: ${error.message}`);
   }
 }
@@ -113,7 +109,6 @@ export async function decodeMessageFromImage(imageUri) {
 
     return message; // Mesajı geri döndür
   } catch (error) {
-    console.error('Decode hatası:', error.message);
     throw new Error(`Mesaj çözme işlemi başarısız oldu: ${error.message}`);
   }
 }
